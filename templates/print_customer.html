@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Jewellery Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            padding: 20px;
+        }
+        .receipt {
+            max-width: 600px;
+            margin: auto;
+            background: #fff9c4;
+            border: 1px solid #f0e68c;
+            padding: 20px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        h2, h4 {
+            text-align: center;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #d4af37;
+            padding: 8px;
+            text-align: left;
+        }
+        .totals {
+            margin-top: 20px;
+        }
+        .totals td {
+            border: none;
+            padding: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <h2>देवरू ज्वेलर्स</h2>
+        <h4>Jewellery Receipt</h4>
+        
+        <p><strong>Receipt No:</strong> {{ receipt_number }}</p>
+        <p><strong>Date:</strong> {{ date }}</p>
+        <p><strong>Customer Name:</strong> {{ customer_name }}</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Description</th>
+                    <th>Purity</th>
+                    <th>Weight (gm)</th>
+                    <th>Amount (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.purity }}</td>
+                    <td>{{ item.weight }}</td>
+                    <td>{{ item.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <table class="totals">
+            <tr>
+                <td><strong>Total:</strong></td>
+                <td>₹ {{ total_amount }}</td>
+            </tr>
+            <tr>
+                <td><strong>Paid (जमा):</strong></td>
+                <td>₹ {{ paid_amount }}</td>
+            </tr>
+            <tr>
+                <td><strong>Balance (येणे):</strong></td>
+                <td>₹ {{ balance_amount }}</td>
+            </tr>
+        </table>
+
+        <div class="footer">
+            <p>धन्यवाद! Thank you for shopping with us.</p>
+            <button onclick="window.print()" class="no-print" style="margin-top: 10px; padding: 6px 12px; background: #d4af37; border: none; border-radius: 4px; color: white; cursor: pointer;">🖨 Print</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!-- item_form.html -->
+<form method="POST">
+    {% csrf_token %}
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <!-- Category Dropdown -->
+      <select name="category" required class="border rounded px-4 py-2 w-full">
+        <option value="">-- Select Category --</option>
+        <option value="Gold" {% if form.category.value == "Gold" %}selected{% endif %}>Gold</option>
+        <option value="Silver" {% if form.category.value == "Silver" %}selected{% endif %}>Silver</option>
+        <option value="Platinum" {% if form.category.value == "Platinum" %}selected{% endif %}>Platinum</option>
+      </select>
+
+      <!-- Item Name -->
+      <input type="text" name="name" value="{{ form.name.value|default_if_none:'' }}" placeholder="Item Name" class="border rounded px-4 py-2 w-full" required>
+
+      <!-- Quantity -->
+      <input type="number" name="quantity" value="{{ form.quantity.value|default_if_none:'' }}" placeholder="Quantity" class="border rounded px-4 py-2 w-full" required>
+    </div>
+
+    <br>
+
+    <!-- Submit Button -->
+    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded">
+      {{ button_label }}
+    </button>
+
+</form>

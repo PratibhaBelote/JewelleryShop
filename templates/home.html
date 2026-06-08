@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dewaru Jewellers - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<!-- Navbar -->
+<nav class="bg-yellow-800 text-white px-6 py-4 flex justify-between items-center shadow-md">
+    <h1 class="text-xl font-semibold">💍 Dewaru Jewellers</h1>
+    <a href="{% url 'logout' %}" class="bg-white text-yellow-800 px-4 py-2 rounded-md hover:bg-yellow-100 transition">Logout</a>
+</nav>
+
+<!-- Content -->
+<div class="container mx-auto px-4 py-10">
+    <h2 class="text-2xl text-center font-bold mb-6">Welcome, {{ user.username }}!</h2>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Items -->
+        <div class="bg-white rounded-2xl shadow p-6 text-center">
+            <div class="text-4xl mb-2">📦</div>
+            <h3 class="text-lg font-semibold text-gray-700">Total Items</h3>
+            <p class="text-2xl font-bold text-yellow-700 mt-2">{{ total_items }}</p>
+        </div>
+
+        <!-- Total Quantity -->
+        <div class="bg-white rounded-2xl shadow p-6 text-center">
+            <div class="text-4xl mb-2">📊</div>
+            <h3 class="text-lg font-semibold text-gray-700">Total Quantity in Stock</h3>
+            <p class="text-2xl font-bold text-yellow-700 mt-2">{{ total_quantity }}</p>
+        </div>
+
+        <!-- Total Sales -->
+        <div class="bg-white rounded-2xl shadow p-6 text-center">
+            <div class="text-4xl mb-2">💰</div>
+            <h3 class="text-lg font-semibold text-gray-700">Total Sales</h3>
+            <p class="text-2xl font-bold text-yellow-700 mt-2">₹{{ total_sales }}</p>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex flex-wrap justify-center gap-4">
+        <a href="{% url 'view_products' %}" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl shadow-md transition font-medium">🛍️ Product</a>
+        <a href="{% url 'add_item' %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl shadow-md transition font-medium">➕ Add Item</a>
+        <a href="{% url 'add_customer' %}" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl shadow-md transition font-medium">👤 Add Customer</a>
+        <a href="{% url 'view_sales' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md transition font-medium">📄 View Sales</a> 
+    </div>
+</div>
+
+</body>
+</html>

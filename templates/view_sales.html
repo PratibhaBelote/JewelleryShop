@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Sales</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<nav class="bg-yellow-800 text-white px-6 py-4 flex justify-between items-center shadow">
+    <h1 class="text-xl font-bold">💍 Dewaru Jewellers</h1>
+    <a href="{% url 'home' %}" class="bg-white text-yellow-800 px-4 py-2 rounded hover:bg-yellow-100">🏠 Home</a>
+</nav>
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-xl overflow-x-auto mt-8 p-6">
+    <h2 class="text-2xl font-bold mb-4 text-yellow-600">📊 View Sales</h2>
+
+    <table class="min-w-full divide-y divide-yellow-300 text-sm">
+        <thead class="bg-yellow-500 text-white uppercase">
+            <tr>
+                <th class="px-6 py-3 text-left">👤 Customer</th>
+                <th class="px-6 py-3 text-left">📦 Product</th>
+                <th class="px-6 py-3 text-left">📞 Phone</th>
+                <th class="px-6 py-3 text-left">🔢 Qty</th>
+                <th class="px-6 py-3 text-left">💰 Amount</th>
+                <th class="px-6 py-3 text-left">📌 Status</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for customer in customers %}
+            <tr class="hover:bg-yellow-50 transition">
+                <td class="px-6 py-4 font-medium text-gray-800">{{ customer.name }}</td>
+                <td class="px-6 py-4 text-gray-700">{{ customer.product }}</td>
+                <td class="px-6 py-4 text-gray-700">{{ customer.phone }}</td>
+                <td class="px-6 py-4 text-gray-700">{{ customer.quantity }}</td>
+                <td class="px-6 py-4 text-gray-700">₹{{ customer.amount }}</td>
+                <td class="px-6 py-4">
+                    {% if customer.status == "Paid" %}
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Paid</span>
+                    {% else %}
+                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center py-4 text-gray-500">No sales available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+
+</body>
+</html>

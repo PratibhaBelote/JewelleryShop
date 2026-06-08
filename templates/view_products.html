@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Instant Search with AJAX</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-yellow-800 text-white px-6 py-4 flex justify-between items-center shadow-md">
+    <h1 class="text-xl font-semibold">💍 Dewaru Jewellers</h1>
+    <a href="{% url 'home' %}" class="bg-white text-yellow-800 px-4 py-2 rounded-md hover:bg-yellow-100 transition">Home</a>
+</nav>
+  <div class="max-w-6xl mx-auto p-6">
+
+    <h1 class="text-2xl font-bold mb-4">Product Inventory Search</h1>
+
+    <!-- Flex container for category and search input -->
+    <div class="flex gap-4 items-center mb-4 max-w-xl mx-auto">
+      <!-- Category Dropdown -->
+      <select id="category" class="border px-3 py-2 rounded w-40">
+        <option value="All">All</option>
+        <option value="Gold">Gold</option>
+        <option value="Silver">Silver</option>
+        <option value="Platinum">Platinum</option>
+      </select>
+
+      <!-- Search Input with suggestions -->
+      <div class="relative flex-grow">
+        <input
+          type="text"
+          id="search"
+          placeholder="Start typing product name..."
+          autocomplete="off"
+          class="border px-3 py-2 rounded w-full"
+        />
+        <ul id="suggestions" class="absolute bg-white border border-gray-300 mt-1 rounded w-full max-h-48 overflow-auto hidden z-50"></ul>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <table class="table-auto w-full border-collapse bg-white rounded shadow mt-6">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="border px-4 py-2">Category</th>
+          <th class="border px-4 py-2">Name</th>
+          <th class="border px-4 py-2">Quantity</th>
+          <th class="border px-4 py-2">Purity</th>
+          <th class="border px-4 py-2">Weight</th>
+        </tr>
+      </thead>
+      <tbody id="productTableBody">
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+
+  </div>
+
+<script>
+  const searchInput = document.getElementById('search');
+  const suggestionsBox = document.getElementById('suggestions');
+  const categorySelect = document.getElementById('category');
+  const tableBody = document.getElementById('productTableBody');
+
+  function hideSuggestions() {
+    suggestionsBox.innerHTML = '';
+    suggestionsBox.style.display = 'none';
+  }
+
+  function showSuggestions(items) {
+    if (items.length === 0) {
+      hideSuggestions();
+      return;
+    }
+    suggestionsBox.innerHTML = '';
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item.name;  
+      li.classList.add('px-3', 'py-2', 'hover:bg-gray-200', 'cursor-pointer');
+      li.addEventListener('click', () => {
+        searchInput.value = item.name;
+        hideSuggestions();
+        fetchProducts(item.name);
+      });
+      suggestionsBox.appendChild(li);
+    });
+    suggestionsBox.style.display = 'block';
+  }
+
+  async function fetchSuggestions(query) {
+    if (!query) {
+      hideSuggestions();
+      clearTable();
+      return;
+    }
+    const category = categorySelect.value || 'All';
+
+    try {
+      const response = await fetch(`/autocomplete_search/?q=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`);
+      if (response.ok) {
+        const data = await response.json();
+        showSuggestions(data);
+      } else {
+        hideSuggestions();
+        fetchProducts('');
+      }
+    } catch (error) {
+      hideSuggestions();
+      console.error('Autocomplete fetch error:', error);
+    }
+  }
+
+ async function fetchProducts(query) {
+  const category = categorySelect.value || 'All';
+  try {
+    const response = await fetch(`/autocomplete_search/?q=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`);
+    if (response.ok) {
+      const products = await response.json();  // full product data
+      renderProducts(products);
+    } else {
+      clearTable();
+    }
+  } catch (error) {
+    clearTable();
+    console.error('Product fetch error:', error);
+  }
+}
+
+
+  function clearTable() {
+    tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-500">No products found.</td></tr>`;
+  }
+
+  function renderProducts(items) {
+    if (!items.length) {
+      clearTable();
+      return;
+    }
+    tableBody.innerHTML = '';
+    items.forEach(item => {
+      const row = document.createElement('tr');
+      row.classList.add('text-center', 'hover:bg-gray-50');
+      row.innerHTML = `
+        <td class="border px-4 py-2">${item.category}</td>
+        <td class="border px-4 py-2">${item.name}</td>
+        <td class="border px-4 py-2">${item.quantity}</td>
+        <td class="border px-4 py-2">${item.purity}</td>
+        <td class="border px-4 py-2">${item.weight}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  function debounce(fn, delay) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn.apply(this, args), delay);
+    }
+  }
+
+  searchInput.addEventListener('input', debounce(e => {
+    fetchSuggestions(e.target.value);
+    fetchProducts(e.target.value);
+  }, 300));
+
+  categorySelect.addEventListener('change', () => {
+    searchInput.value = '';
+    hideSuggestions();
+    clearTable();
+    fetchProducts('');
+  });
+
+  document.addEventListener('click', e => {
+    if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
+      hideSuggestions();
+    }
+  });
+
+  clearTable();
+</script>
+</body>
+</html>
