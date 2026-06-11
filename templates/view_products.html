@@ -46,6 +46,7 @@
           <th class="border px-4 py-2">Quantity</th>
           <th class="border px-4 py-2">Purity</th>
           <th class="border px-4 py-2">Weight</th>
+          <th class="border px-4 py-2">Barcode</th>
         </tr>
       </thead>
       <tbody id="productTableBody">
@@ -145,6 +146,20 @@
         <td class="border px-4 py-2">${item.quantity}</td>
         <td class="border px-4 py-2">${item.purity}</td>
         <td class="border px-4 py-2">${item.weight}</td>
+        <td class="border px-4 py-2">
+          <div class="inline-block border border-dashed border-gray-400 bg-white px-4 py-2 text-center">
+            <p class="text-[10px] font-bold tracking-[0.2em]">DEVARU JEWELLERS</p>
+            <p class="text-sm font-semibold mt-1">${item.name}</p>
+            <p class="text-xs text-gray-600">${item.purity} | ${Number(item.weight).toFixed(3)} gm</p>
+            <img
+              src="data:image/png;base64,${item.barcode}"
+              alt="${item.item_code}"
+              width="200"
+              class="mx-auto my-1"
+            >
+            <p class="text-xs font-mono font-bold">${item.item_code}</p>
+          </div>
+        </td>
       `;
       tableBody.appendChild(row);
     });

@@ -11,6 +11,7 @@ from .models import Customer
 from .models import JewelleryItem
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from .utils import generate_barcode
 
 
 # Login view
@@ -98,6 +99,12 @@ def add_item(request):
 
     items = JewelleryItem.objects.all()
 
+    for item in items:
+        if not item.item_code:
+            item.item_code = item.generate_item_code()
+            item.save(update_fields=["item_code"])
+        item.barcode = generate_barcode(item.item_code)
+
     return render(request, 'add_item.html', {
         'items': items,
         'button_label': 'Add Item'
@@ -157,7 +164,31 @@ def add_customer(request):
 
 def print_customer(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
-    return render(request, 'print_customer.html', {'customer': customer})
+
+    item = JewelleryItem.objects.filter(
+        name=customer.product,
+        category=customer.category
+    ).first()
+
+    item_code = ''
+    item_barcode = ''
+    item_label = customer.product
+
+    if item:
+        if not item.item_code:
+            item.item_code = item.generate_item_code()
+            item.save(update_fields=["item_code"])
+        item_code = item.item_code
+        item_barcode = generate_barcode(item.item_code)
+        item_label = f"{item.name} {item.purity} - {item.item_code}"
+
+    return render(request, 'print_customer.html', {
+        'customer': customer,
+        'item': item,
+        'item_code': item_code,
+        'item_barcode': item_barcode,
+        'item_label': item_label,
+    })
 
 
 
@@ -218,6 +249,32 @@ def view_products(request):
 
     print(f"Items count after filtering: {items.count()}")
 
+    # Reports view
+@login_required
+def view_products(request):
+    category_filter = request.GET.get('category')
+    search_query = request.GET.get('search')
+
+    print(f"Category filter received: {category_filter}")
+    print(f"Search query received: {search_query}")
+
+    items = JewelleryItem.objects.all()
+
+    if category_filter and category_filter != 'All':
+        items = items.filter(category=category_filter)
+
+    if search_query:
+        items = items.filter(name__icontains=search_query)
+
+    print(f"Items count after filtering: {items.count()}")
+
+    for item in items:
+        print("ITEM:", item.name)
+        print("CODE:", item.item_code)
+
+        if item.item_code:
+            item.barcode = generate_barcode(item.item_code)
+
     return render(request, 'view_products.html', {
         'items': items,
         'selected_category': category_filter or 'All',
@@ -248,8 +305,24 @@ def autocomplete_search(request):
     if query:
         items = items.filter(name__icontains=query)
 
-    # Return full product info
-    results = list(items.values('category', 'name', 'quantity', 'purity', 'weight'))
+    # Return full product info with item code and barcode image
+    results = []
+    for item in items:
+        if not item.item_code:
+            item.item_code = item.generate_item_code()
+            item.save(update_fields=["item_code"])
+
+        results.append({
+            'category': item.category,
+            'name': item.name,
+            'quantity': item.quantity,
+            'purity': item.purity,
+            'weight': item.weight,
+            'item_code': item.item_code,
+            'label': f"{item.name} {item.purity} - {item.item_code}",
+            'barcode': generate_barcode(item.item_code),
+        })
+
     return JsonResponse(results, safe=False)
 
 
@@ -277,3 +350,18 @@ def delete_customer(request, id):
     customer.delete()
 
     return redirect('add_customer')
+
+
+from .utils import generate_barcode
+
+def jewellery_list(request):
+    items = JewelleryItem.objects.all()
+
+    for item in items:
+        item.barcode = generate_barcode(item.item_code)
+
+    return render(
+        request,
+        "jewellery_list.html",
+        {"items": items}
+    )
